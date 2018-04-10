@@ -29,8 +29,23 @@ const DATA = {
   ]
 };
 
+DATA.items.sort(sortBy("name", "id"));
+
 function Menu() {
-  return <div>Open the console, you have failing tests.</div>;
+  return (
+    <div>
+      <h1>{DATA.title}</h1>
+      {
+        //<ul>{DATA.items.map(el => <li key={el.id}>{el.name}</li>)}</ul>
+      }
+
+      <ul>
+        {DATA.items
+          .filter(el => el.type === "mexican")
+          .map(el => <li key={el.id}>{el.name}</li>)}
+      </ul>
+    </div>
+  );
 }
 
 ReactDOM.render(<Menu />, document.getElementById("app"), () => {
