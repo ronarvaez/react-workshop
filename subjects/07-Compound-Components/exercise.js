@@ -28,24 +28,50 @@ import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 
 class RadioGroup extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {
+      value: props.defaultValue
+    };
+  }
+
   static propTypes = {
     defaultValue: PropTypes.string
   };
 
-  render() {
-    return <div>{this.props.children}</div>;
-  }
-}
-
-class RadioOption extends React.Component {
-  static propTypes = {
-    value: PropTypes.string
+  handleClick = value => {
+    this.setState(() => ({ value }));
   };
 
   render() {
     return (
       <div>
-        <RadioIcon isSelected={false} /> {this.props.children}
+        {React.Children.map(this.props.children, child =>
+          React.cloneElement(child, {
+            isSelected: this.state.value === child.props.value,
+            handleClick: this.handleClick
+          })
+        )}
+      </div>
+    );
+  }
+}
+
+class RadioOption extends React.Component {
+  static propTypes = {
+    value: PropTypes.string,
+    isSelected: PropTypes.bool
+  };
+
+  handleClick = () => {
+    this.props.handleClick(this.props.value);
+  };
+
+  render() {
+    const { isSelected } = this.props;
+    return (
+      <div style={{ cursor: "pointer" }} onClick={this.handleClick}>
+        <RadioIcon isSelected={isSelected} /> {this.props.children}
       </div>
     );
   }
