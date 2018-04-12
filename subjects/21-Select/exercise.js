@@ -15,21 +15,65 @@ class Select extends React.Component {
     defaultValue: PropTypes.any
   };
 
+  constructor(props) {
+    super();
+    this.state = {
+      showOptions: false,
+      selectedValue: {
+        value: props.value,
+        description: props.defaultValue || "Select One"
+      }
+    };
+  }
+
+  handleClick = () => {
+    this.setState(prev => ({ showOptions: !prev.showOptions }));
+  };
+
+  optionSelected = (value, textLabel) => {
+    this.setState(() => ({
+      showOptions: false,
+      selectedValue: { description: textLabel }
+    }));
+  };
+
   render() {
+    const { showOptions, selectedValue } = this.state;
     return (
       <div className="select">
-        <div className="label">
-          label <span className="arrow">▾</span>
+        <div className="label" onClick={this.handleClick}>
+          {selectedValue.description} <span className="arrow">▾</span>
         </div>
-        <div className="options">{this.props.children}</div>
+        <div
+          className="options"
+          style={{
+            display: showOptions ? "inline-block" : "none"
+          }}
+        >
+          {React.Children.map(this.props.children, child => {
+            return React.cloneElement(child, {
+              selected: selectedValue === child.props.value,
+              optionSelected: this.optionSelected
+            });
+          })}
+        </div>
       </div>
     );
   }
 }
 
 class Option extends React.Component {
+  handleClick = () => {
+    const { optionSelected, value, children } = this.props;
+    optionSelected(value, children);
+  };
+
   render() {
-    return <div className="option">{this.props.children}</div>;
+    return (
+      <div onClick={this.handleClick} className="option">
+        {this.props.children}
+      </div>
+    );
   }
 }
 

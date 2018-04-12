@@ -18,27 +18,53 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
+import { createContext } from "react-broadcast";
+
+const FormContext = createContext();
 
 class Form extends React.Component {
   render() {
-    return <div>{this.props.children}</div>;
+    return (
+      <FormContext.Provider
+        value={{ handleClick: this.props.onSubmit, fn: "", ln: "" }}
+      >
+        <div>{this.props.children}</div>
+      </FormContext.Provider>
+    );
   }
 }
 
 class SubmitButton extends React.Component {
   render() {
-    return <button>{this.props.children}</button>;
+    return (
+      <FormContext.Consumer>
+        {context => (
+          <button onClick={context.handleClick}>
+            {this.props.children}
+          </button>
+        )}
+      </FormContext.Consumer>
+    );
   }
 }
 
 class TextInput extends React.Component {
   render() {
     return (
-      <input
-        type="text"
-        name={this.props.name}
-        placeholder={this.props.placeholder}
-      />
+      <FormContext.Consumer>
+        {context => (
+          <input
+            type="text"
+            name={this.props.name}
+            placeholder={this.props.placeholder}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                context.handleClick();
+              }
+            }}
+          />
+        )}
+      </FormContext.Consumer>
     );
   }
 }
