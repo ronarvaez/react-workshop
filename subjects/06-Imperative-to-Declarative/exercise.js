@@ -16,12 +16,8 @@ class Modal extends React.Component {
     children: PropTypes.node
   };
 
-  open() {
-    $(this.node).modal("show");
-  }
-
-  close() {
-    $(this.node).modal("hide");
+  componentDidUpdate() {
+    $(this.node).modal(this.props.isOpen ? "show" : "hide");
   }
 
   render() {
@@ -41,15 +37,24 @@ class Modal extends React.Component {
 }
 
 class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      isModalOpen: false,
+      modalTitle: "Declarative is better"
+    };
+  }
+
   openModal = () => {
-    this.modal.open();
+    this.setState(prev => ({ isModalOpen: true }));
   };
 
   closeModal = () => {
-    this.modal.close();
+    this.setState(prev => ({ isModalOpen: false }));
   };
 
   render() {
+    const { isModalOpen, modalTitle } = this.state;
     return (
       <div className="container">
         <h1>Let’s make bootstrap modal declarative</h1>
@@ -58,10 +63,7 @@ class App extends React.Component {
           open modal
         </button>
 
-        <Modal
-          title="Declarative is better"
-          ref={modal => (this.modal = modal)}
-        >
+        <Modal title={modalTitle} isOpen={isModalOpen}>
           <p>Calling methods on instances is a FLOW not a STOCK!</p>
           <p>
             It’s the dynamic process, not the static program in text
