@@ -24,6 +24,15 @@ class ListView extends React.Component {
     renderRowAtIndex: PropTypes.func.isRequired
   };
 
+  constructor(props) {
+    super();
+    this.state = {
+      rowsToShow: 0
+    };
+  }
+
+  handleOnScroll = event => {};
+
   render() {
     const { numRows, rowHeight, renderRowAtIndex } = this.props;
     const totalHeight = numRows * rowHeight;
@@ -37,7 +46,10 @@ class ListView extends React.Component {
     }
 
     return (
-      <div style={{ height: "100vh", overflowY: "scroll" }}>
+      <div
+        style={{ height: "100vh", overflowY: "scroll" }}
+        onScroll={this.handleOnScroll}
+      >
         <div style={{ height: totalHeight }}>
           <ol>{items}</ol>
         </div>
