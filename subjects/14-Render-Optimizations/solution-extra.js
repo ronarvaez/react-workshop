@@ -29,11 +29,36 @@ class ListView extends React.Component {
     scrollTop: 0
   };
 
+  componentWillMount() {
+    if (localStorage.scrollTop) {
+      this.setState({
+        scrollTop: JSON.parse(localStorage.scrollTop)
+      });
+    }
+  }
+
   componentDidMount() {
+    this.handleWindowResize();
+    window.addEventListener("resize", this.handleWindowResize);
+
+    window.addEventListener("beforeunload", () => {
+      localStorage.scrollTop = JSON.stringify(this.state.scrollTop);
+    });
+
+    if (this.node.scrollTop !== this.state.scrollTop) {
+      this.node.scrollTop = this.state.scrollTop;
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleWindowResize);
+  }
+
+  handleWindowResize = () => {
     this.setState({
       availableHeight: this.node.clientHeight
     });
-  }
+  };
 
   handleScroll = event => {
     this.setState({

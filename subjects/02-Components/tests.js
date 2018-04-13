@@ -1,5 +1,6 @@
 import { findDOMNode } from "react-dom";
-import { Simulate } from "react-addons-test-utils";
+import { Simulate } from "react-dom/test-utils";
+
 import assert from "../assert";
 
 export function run(component) {
@@ -12,6 +13,7 @@ export function run(component) {
   borderFixture.setAttribute("style", "border-bottom-color: #000");
 
   console.log("on first render");
+
   assert(!!html.match(/USA/), "render USA tab");
   assert(!!html.match(/Brazil/), "render Brazil tab");
   assert(!!html.match(/Russia/), "render Russia tab");
@@ -29,6 +31,7 @@ export function run(component) {
   );
 
   console.log("after clicking the second tab...");
+
   Simulate.click(tabs[1]);
   assert(
     tabs[1] &&
