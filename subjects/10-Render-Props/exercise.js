@@ -24,7 +24,7 @@ import PropTypes from "prop-types";
 import LoadingDots from "./utils/LoadingDots";
 import getAddressFromCoords from "./utils/getAddressFromCoords";
 
-class App extends React.Component {
+class GeoPosition extends React.Component {
   state = {
     coords: {
       latitude: null,
@@ -54,20 +54,54 @@ class App extends React.Component {
   }
 
   render() {
+    return this.props.children(this.state);
+  }
+}
+
+class GeoAddress extends React.Component {
+  render() {
+    return this.props.children(this.props.cords);
+  }
+}
+
+class App extends React.Component {
+  render() {
     return (
-      <div>
-        <h1>Geolocation</h1>
-        {this.state.error ? (
-          <div>Error: {this.state.error.message}</div>
-        ) : (
-          <dl>
-            <dt>Latitude</dt>
-            <dd>{this.state.coords.latitude || <LoadingDots />}</dd>
-            <dt>Longitude</dt>
-            <dd>{this.state.coords.longitude || <LoadingDots />}</dd>
-          </dl>
+      <GeoPosition>
+        {state => (
+          <div>
+            <h1>Geolocation</h1>
+            {state.error ? (
+              <div>Error: {state.error.message}</div>
+            ) : (
+              <dl>
+                <dt>Latitude</dt>
+                <dd>{state.coords.latitude || <LoadingDots />}</dd>
+                <dt>Longitude</dt>
+                <dd>{state.coords.longitude || <LoadingDots />}</dd>
+                <dd>
+                  {state.coords.latitude && state.coords.longitude ? (
+                    <GeoAddress cords={state.coords}>
+                      {geo =>
+                        getAddressFromCoords(
+                          geo.latitude,
+                          geo.longitude
+                        )
+                          .then(success => <p>{success}</p>)
+                          .catch(rej => {
+                            console.log(rej);
+                          })
+                      }
+                    </GeoAddress>
+                  ) : (
+                    <LoadingDots />
+                  )}
+                </dd>
+              </dl>
+            )}
+          </div>
         )}
-      </div>
+      </GeoPosition>
     );
   }
 }
