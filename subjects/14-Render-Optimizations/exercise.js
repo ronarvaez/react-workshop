@@ -24,23 +24,36 @@ class ListView extends React.Component {
     renderRowAtIndex: PropTypes.func.isRequired
   };
 
-  constructor(props) {
-    super();
-    this.state = {
-      rowsToShow: 0
-    };
+  // event.target.scrollTop <-- # of px scrolled down
+  // event.target.scrollHeight <-- total height of the scrollable area
+  // event.target.clientHeight <-- visible height "
+
+  state = {
+    scrollTop: 0,
+    availableHeight: 0
+  };
+
+  componentDidMount() {
+    this.setState({ availableHeight: this.scroller.clientHeight });
   }
 
-  handleOnScroll = event => {};
+  handleScroll = event => {
+    this.setState({ scrollTop: event.target.scrollTop });
+  };
 
   render() {
+    const { scrollTop, availableHeight } = this.state;
     const { numRows, rowHeight, renderRowAtIndex } = this.props;
     const totalHeight = numRows * rowHeight;
 
     const items = [];
 
-    let index = 0;
-    while (index < numRows) {
+    const startIndex = Math.floor(scrollTop / rowHeight);
+    const endIndex =
+      startIndex + Math.ceil(availableHeight / rowHeight);
+
+    let index = startIndex;
+    while (index < endIndex) {
       items.push(<li key={index}>{renderRowAtIndex(index)}</li>);
       index++;
     }
@@ -48,9 +61,15 @@ class ListView extends React.Component {
     return (
       <div
         style={{ height: "100vh", overflowY: "scroll" }}
-        onScroll={this.handleOnScroll}
+        onScroll={this.handleScroll}
+        ref={node => (this.scroller = node)}
       >
-        <div style={{ height: totalHeight }}>
+        <div
+          style={{
+            height: totalHeight,
+            paddingTop: startIndex * rowHeight
+          }}
+        >
           <ol>{items}</ol>
         </div>
       </div>
@@ -60,7 +79,7 @@ class ListView extends React.Component {
 
 ReactDOM.render(
   <ListView
-    numRows={500}
+    numRows={5000000000}
     rowHeight={RainbowListDelegate.rowHeight}
     renderRowAtIndex={RainbowListDelegate.renderRowAtIndex}
   />,

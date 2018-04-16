@@ -60,8 +60,40 @@ class GeoPosition extends React.Component {
 }
 
 class GeoAddress extends React.Component {
+  state = {
+    address: null
+  };
+
+  componentDidMount() {
+    this.doImperativeWork();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { latitude: prevLat, longitude: prevLong } = prevProps.coords;
+    const {
+      latitude: nextLat,
+      longitude: nextLong
+    } = this.props.coords;
+
+    if (prevLat !== nextLat || prevLong !== nextLong) {
+      this.doImperativeWork();
+    }
+  }
+
+  doImperativeWork() {
+    const { coords } = this.props;
+
+    if (coords.latitude && coords.longitude) {
+      getAddressFromCoords(coords.latitude, coords.longitude).then(
+        address => {
+          this.setState({ address });
+        }
+      );
+    }
+  }
+
   render() {
-    return this.props.children(this.props.cords);
+    return this.props.children(this.state.address);
   }
 }
 
@@ -69,36 +101,27 @@ class App extends React.Component {
   render() {
     return (
       <GeoPosition>
-        {state => (
+        {geo => (
           <div>
             <h1>Geolocation</h1>
-            {state.error ? (
-              <div>Error: {state.error.message}</div>
+            {geo.error ? (
+              <div>Error: {geo.error.message}</div>
             ) : (
-              <dl>
-                <dt>Latitude</dt>
-                <dd>{state.coords.latitude || <LoadingDots />}</dd>
-                <dt>Longitude</dt>
-                <dd>{state.coords.longitude || <LoadingDots />}</dd>
-                <dd>
-                  {state.coords.latitude && state.coords.longitude ? (
-                    <GeoAddress cords={state.coords}>
-                      {geo =>
-                        getAddressFromCoords(
-                          geo.latitude,
-                          geo.longitude
-                        )
-                          .then(success => <p>{success}</p>)
-                          .catch(rej => {
-                            console.log(rej);
-                          })
-                      }
-                    </GeoAddress>
-                  ) : (
-                    <LoadingDots />
+              <div>
+                <dl>
+                  <dt>Latitude</dt>
+                  <dd>{geo.coords.latitude || <LoadingDots />}</dd>
+                  <dt>Longitude</dt>
+                  <dd>{geo.coords.longitude || <LoadingDots />}</dd>
+                </dl>
+                <GeoAddress coords={geo.coords}>
+                  {address => (
+                    <marquee>
+                      The address is {address || <LoadingDots />}
+                    </marquee>
                   )}
-                </dd>
-              </dl>
+                </GeoAddress>
+              </div>
             )}
           </div>
         )}
